@@ -46,7 +46,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const params: any = request.params;
       const contractAddress = params['0']['contractAddress'];
       const functionName = params['0']['functionName'];
-      const functionInputs = params['0']['functionInputs'];
+      let functionInputs = params['0']['functionInputs'];
       const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
       console.log(
         'This is the smart contract address, functionName, functionInputs:- ,',
@@ -82,7 +82,22 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const contract = new ethers.Contract(contractAddress, abi, provider);
 
       console.log('contract abject', contract);
-      const ans = await contract.callStatic[functionName](functionInputs);
+      let ans;
+
+      if (functionInputs.length === 1 && functionInputs[0] === '') {
+        functionInputs = '';
+      }
+      console.log(functionInputs === '' || functionInputs.length === 0);
+      if (functionInputs === '' || functionInputs.length === 0) {
+        ans = await contract.callStatic[functionName]();
+      } else {
+        console.log(
+          functionInputs,
+          'this is the destructured inputs:-',
+          ...functionInputs,
+        );
+        ans = await contract.callStatic[functionName](...functionInputs);
+      }
 
       //  console.log("tis is the state mutability",contract.functions,"now                                 ", contract.functions.GetCurrentToken.constant);
       //  await ans.wait()
