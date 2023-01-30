@@ -1,20 +1,23 @@
-import { useContext, useEffect, useState } from 'react';
+/* eslint-disable import/no-extraneous-dependencies */
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { ethers } from 'ethers';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-// eslint-disable-next-line
-import { connectSnap, getSnap, shouldDisplayReconnectButton, sendHello, ConnectSmartContract} from '../utils';
+import {
+  connectSnap,
+  getSnap,
+  shouldDisplayReconnectButton,
+  ConnectSmartContract,
+} from '../utils';
 import {
   ConnectButton,
   InstallFlaskButton,
   ReconnectButton,
-  SendHelloButton1,
   SendHelloButton2,
   Card,
 } from '../components';
-import axios from 'axios';
-import { ethers } from 'ethers';
 
-import { CardModified } from '../components/CardModified';
 import { Dropdown } from '../components/Dropdown';
 
 // import { getAbi } from './function';
@@ -118,13 +121,13 @@ const Description = styled.div`
 `;
 
 const Input = styled.input`
-box-sizing: border-box;
-width: 100%;
-padding: 12.5px 10px;
-border-radius: 10px;
-border: 2px solid #B3B3B9;
-font-family: 'Nunito Sans';
-outline: none;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12.5px 10px;
+  border-radius: 10px;
+  border: 2px solid #b3b3b9;
+  font-family: 'Nunito Sans';
+  outline: none;
 `;
 
 const CardWrapper = styled.div<{ fullWidth?: boolean; disabled: boolean }>`
@@ -207,65 +210,62 @@ const Index = () => {
   };
 
   const myfunc2 = async (Name1: any, Input: any) => {
+    const ifaceFunctionNameKey: any = functionNames[Name1];
     console.log(
       'this is the value of the key and input for the myfunc2 function:- ',
       Name1,
       Input,
+      ifaceFunctionNameKey,
     );
+    // console.log(ifaceFunctionNameKey);
+    // const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
+    // const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${myInput}&tag=latest&apikey=${apiKey}`;
+    // const res = await axios.get(url);
+    // const abi = JSON.parse(res.data.result);
+    // const iface1 = new ethers.utils.Interface(abi);
+    // console.log(
+    //   'this is the stateMutability:- ',
+    //   iface1.functions[ifaceFunctionNameKey].stateMutability,
+    // );
+    // const { stateMutability } = iface1.functions[ifaceFunctionNameKey];
 
     try {
-      await ConnectSmartContract(myInput, Name1, Input);
+      await ConnectSmartContract(myInput, Name1, Input, ifaceFunctionNameKey);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
     }
-    const ifaceFunctionNameKey = functionNames[Name1];
-    console.log(ifaceFunctionNameKey);
-    const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-    const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${myInput}&tag=latest&apikey=${apiKey}`;
-    const res = await axios.get(url);
-    console.log('this is the response to the api:- ', res, res.data.result);
-    const abi = JSON.parse(res.data.result);
-    const iface1 = new ethers.utils.Interface(abi);
-    console.log('iface1:- ', iface1);
-    console.log('iface1 function name:-', Object.keys(iface1.functions));
-    console.log(
-      'this is the stateMutability:- ',
-      iface1.functions[ifaceFunctionNameKey].stateMutability,
-    );
-    const {stateMutability} = iface1.functions[ifaceFunctionNameKey];
+    // const ifaceFunctionNameKey = functionNames[Name1];
+    // console.log(ifaceFunctionNameKey);
+    // const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
+    // const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${myInput}&tag=latest&apikey=${apiKey}`;
+    // const res = await axios.get(url);
+    // console.log('this is the response to the api:- ', res, res.data.result);
+    // const abi = JSON.parse(res.data.result);
+    // const iface1 = new ethers.utils.Interface(abi);
+    // console.log('iface1:- ', iface1);
+    // console.log('iface1 function name:-', Object.keys(iface1.functions));
+    // console.log(
+    //   'this is the stateMutability:- ',
+    //   iface1.functions[ifaceFunctionNameKey].stateMutability,
+    // );
+    // const {stateMutability} = iface1.functions[ifaceFunctionNameKey];
 
-    const ApiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-    const provider = new ethers.providers.AlchemyProvider('maticmum', ApiKey);
-    const contract = new ethers.Contract(myInput, abi, provider);
+    // const ApiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
+    // const provider = new ethers.providers.AlchemyProvider('maticmum', ApiKey);
+    // const contract = new ethers.Contract(myInput, abi, provider);
 
-    console.log('contrat abject', contract);
-    const ans = await contract[Name1](Input[0]);
+    // console.log('contrat abject', contract);
+    // const ans = await contract[Name1](Input[0]);
 
-    //  console.log("tis is the state mutability",contract.functions,"now                                 ", contract.functions.GetCurrentToken.constant);
-    //  await ans.wait()
-    console.log('this is the ans:-', ans);
-    return ans;
+    // //  console.log("tis is the state mutability",contract.functions,"now                                 ", contract.functions.GetCurrentToken.constant);
+    // //  await ans.wait()
+    // console.log('this is the ans:-', ans);
+    // return ans;
   };
 
-  const allfun = {};
-
-  const handleSendHelloClick2= ()=>{
+  const handleSendHelloClick2 = () => {
     console.log();
-  }
-
-  const handleSendHelloClick = async () => {
-    try {
-      await ConnectSmartContract('abc');
-    } catch (e) {
-      console.error(e);
-      dispatch({ type: MetamaskActions.SetError, payload: e });
-    }
-  };
-
-  const callfunction = (e) => {
-    const { name, value } = e.target;
-    allfun[name] = value;
   };
 
   return (
@@ -372,27 +372,37 @@ const Index = () => {
           }
           onClick={myfunc}
         /> */}
-        <CardWrapper fullWidth={
+        <CardWrapper
+          fullWidth={
             state.isFlask &&
             Boolean(state.installedSnap) &&
             !shouldDisplayReconnectButton(state.installedSnap)
-          } disabled={!state.installedSnap}>
-          
-          <Title>Smart contract address</Title>        
-      <Description>Fetch all read and write functions of a smart contract from its address.
-      </Description>
-      <Input placeholder='Enter Address'  style={{marginTop:'2%',marginBottom:'2%'}} type="text" value={myInput} onChange={(e) => {
+          }
+          disabled={!state.installedSnap}
+        >
+          <Title>Smart contract address</Title>
+          <Description>
+            Fetch all read and write functions of a smart contract from its
+            address.
+          </Description>
+          <Input
+            placeholder="Enter Address"
+            style={{ marginTop: '2%', marginBottom: '2%' }}
+            type="text"
+            value={myInput}
+            onChange={(e) => {
               if (e.target.value !== '') {
                 // getAbi(e.target.value)
                 setMyInput(e.target.value);
               }
-            }}/>
-            <button type="submit" onClick={myfunc}>
+            }}
+          />
+          <button type="submit" onClick={myfunc}>
             Fetch Contract Details
           </button>
-      {/* {button} */}
-    </CardWrapper>
-        <Dropdown 
+          {/* {button} */}
+        </CardWrapper>
+        <Dropdown
           content={{
             title: 'All functions of the given smart contract',
             description: 'Select functions from the given dropdown',

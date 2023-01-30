@@ -80,6 +80,7 @@ export const ConnectSmartContract = async (
   contractAddress: any,
   functionName: any,
   functionInputs: any,
+  ifaceFunctionNameKey: any,
 ) => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
@@ -87,7 +88,14 @@ export const ConnectSmartContract = async (
       defaultSnapOrigin,
       {
         method: 'SmartContract',
-        params: [{ contractAddress, functionName, functionInputs }],
+        params: [
+          {
+            contractAddress,
+            functionName,
+            functionInputs,
+            ifaceFunctionNameKey,
+          },
+        ],
         // smartContractUrl: url,
       },
     ],
