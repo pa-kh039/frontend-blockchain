@@ -96,7 +96,6 @@ export const ConnectSmartContract = async (
             ifaceFunctionNameKey,
           },
         ],
-        // smartContractUrl: url,
       },
     ],
   });

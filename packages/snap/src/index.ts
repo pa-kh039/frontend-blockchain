@@ -66,22 +66,18 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         ],
       });
     case 'SmartContract':
-      console.log(request);
+      // Function Inputs from the frontend
       const params: any = request.params;
       const contractAddress = params['0']['contractAddress'];
       const functionName = params['0']['functionName'];
       let functionInputs = params['0']['functionInputs'];
       const ifaceFunctionNameKey = params['0']['ifaceFunctionNameKey'];
+
+      // api key for polygonscan
       const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-      console.log(
-        'This is the smart contract address, functionName, functionInputs:- ,',
-        params,
-        contractAddress,
-        functionName,
-        functionInputs,
-        ifaceFunctionNameKey,
-      );
       const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${contractAddress}&tag=latest&apikey=${apiKey}`;
+
+      // Fetching contract details from the polygon and storing the whole contract in the res
       const res = await fetch(url, {
         method: 'get',
         headers: {
@@ -90,32 +86,23 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       });
 
       const response = await res.json();
-      console.log('this is the response to the api:- ', response);
+      // Fetchion ABI from the contract.
       const abi = JSON.parse(response.result);
+      // Getting Interface of the functions.
       const iface1 = new ethers.utils.Interface(abi);
-      console.log('iface1:- ', iface1);
-      // console.log('iface1 function name:-', Object.keys(iface1.functions));
-      console.log(
-        'this is the stateMutability:- ',
-        iface1.functions[ifaceFunctionNameKey].stateMutability,
-      );
-
       const { stateMutability } = iface1.functions[ifaceFunctionNameKey];
-
-      const ApiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-      const provider = new ethers.providers.AlchemyProvider('maticmum', ApiKey);
+      const ApiKeyAlchemy = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
+      const provider = new ethers.providers.AlchemyProvider(
+        'maticmum',
+        ApiKeyAlchemy,
+      );
+      // Getting the contract from the ABI, provider and contract address.
       const contract = new ethers.Contract(contractAddress, abi, provider);
 
-      console.log('contract abject', contract);
       let ans;
       if (functionInputs.length === 1 && functionInputs[0] === '') {
         functionInputs = '';
       }
-
-      console.log(
-        'check for if condition on function inputs',
-        functionInputs === '' || functionInputs.length === 0,
-      );
 
       if (stateMutability === 'view' || stateMutability === 'pure') {
         if (functionInputs === '' || functionInputs.length === 0) {
