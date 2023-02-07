@@ -9,6 +9,7 @@ import {
   getSnap,
   shouldDisplayReconnectButton,
   ConnectSmartContract,
+  transactionOutput,
 } from '../utils';
 import {
   ConnectButton,
@@ -40,26 +41,6 @@ const Container = styled.div`
   }
 `;
 
-// const Heading = styled.h1`
-//   margin-top: 0;
-//   margin-bottom: 2.4rem;
-//   text-align: center;
-// `;
-
-// const Span = styled.span`
-//   color: ${(props) => props.theme.colors.primary.default};
-// `;
-
-// const Subtitle = styled.p`
-//   font-size: ${({ theme }) => theme.fontSizes.large};
-//   font-weight: 500;
-//   margin-top: 0;
-//   margin-bottom: 0;
-//   ${({ theme }) => theme.mediaQueries.small} {
-//     font-size: ${({ theme }) => theme.fontSizes.text};
-//   }
-// `;
-
 const CardContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -70,25 +51,6 @@ const CardContainer = styled.div`
   height: 100%;
   margin-top: 1.5rem;
 `;
-
-// const Notice = styled.div`
-//   background-color: ${({ theme }) => theme.colors.background.alternative};
-//   border: 1px solid ${({ theme }) => theme.colors.border.default};
-//   color: ${({ theme }) => theme.colors.text.alternative};
-//   border-radius: ${({ theme }) => theme.radii.default};
-//   padding: 2.4rem;
-//   margin-top: 2.4rem;
-//   max-width: 60rem;
-//   width: 100%;
-
-//   & > * {
-//     margin: 0;
-//   }
-//   ${({ theme }) => theme.mediaQueries.small} {
-//     margin-top: 1.2rem;
-//     padding: 1.6rem;
-//   }
-// `;
 
 const Title = styled.h2`
   font-size: ${({ theme }) => theme.fontSizes.large};
@@ -209,59 +171,81 @@ const Index = () => {
     setNewVar(contract.functions);
   };
 
+  function logDetails(tx1: {
+    blockNumber: any;
+    blockHash: any;
+    hash: any;
+    from: any;
+    to: any;
+    gasPrice: any;
+    nonce: any;
+    data: any;
+  }) {
+    console.log('transaction blockNumber', tx1.blockNumber);
+    console.log('transaction blockhash', tx1.blockHash);
+    console.log('transaction hash', tx1.hash);
+    console.log('transaction from', tx1.from);
+    console.log('transaction to', tx1.to);
+    console.log('transaction gasPrice', tx1.gasPrice);
+    console.log('transaction nonce', tx1.nonce);
+    console.log('transaction  data', tx1.data);
+  }
+  const wait = (ms: any) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const myfunc2 = async (Name1: any, Input: any) => {
     const ifaceFunctionNameKey: any = functionNames[Name1];
-    console.log(
-      'this is the value of the key and input for the myfunc2 function:- ',
-      Name1,
-      Input,
-      ifaceFunctionNameKey,
-    );
-    // console.log(ifaceFunctionNameKey);
-    // const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-    // const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${myInput}&tag=latest&apikey=${apiKey}`;
-    // const res = await axios.get(url);
-    // const abi = JSON.parse(res.data.result);
-    // const iface1 = new ethers.utils.Interface(abi);
-    // console.log(
-    //   'this is the stateMutability:- ',
-    //   iface1.functions[ifaceFunctionNameKey].stateMutability,
-    // );
-    // const { stateMutability } = iface1.functions[ifaceFunctionNameKey];
 
+    const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
+    const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${myInput}&tag=latest&apikey=${apiKey}`;
+    const res = await axios.get(url);
+    const abi = JSON.parse(res.data.result);
+    const iface1 = new ethers.utils.Interface(abi);
+    console.log(
+      'this is the stateMutability:- ',
+      iface1.functions[ifaceFunctionNameKey].stateMutability,
+    );
+    const { stateMutability } = iface1.functions[ifaceFunctionNameKey];
+
+    let ans;
     try {
-      await ConnectSmartContract(myInput, Name1, Input, ifaceFunctionNameKey);
+      if (stateMutability === 'view' || stateMutability === 'pure') {
+        await ConnectSmartContract(myInput, Name1, Input, ifaceFunctionNameKey);
+      } else {
+        console.log('We are here for the payable functions');
+        const Provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = Provider.getSigner();
+        const signature = await signer.signMessage(url);
+        console.log('The signer and the signature are:', signer, signature);
+        console.log('Follosint are the abi and myinput', myInput, abi);
+        const contract = new ethers.Contract(myInput, abi, signer);
+        try {
+          if (stateMutability === 'payable') {
+            ans = await contract[Name1](...Input, {
+              value: ethers.utils.parseEther(`{ETHER}`),
+            });
+          } else {
+            ans = await contract[Name1](...Input);
+          }
+          wait(40 * 1000).then(() => console.log('waited for 2 seconds'));
+          logDetails(ans);
+          console.log('this is the ans', ans);
+          // eslint-disable-next-line camelcase
+          const output_transaction = {
+            Transactionhash: ans.hash,
+            to: ans.to,
+            from: ans.from,
+            gasPrice: ans.gasPrice,
+          };
+          await transactionOutput(output_transaction);
+        } catch (e) {
+          console.log('error', e);
+        }
+      }
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
     }
-    // const ifaceFunctionNameKey = functionNames[Name1];
-    // console.log(ifaceFunctionNameKey);
-    // const apiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-    // const url = `https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${myInput}&tag=latest&apikey=${apiKey}`;
-    // const res = await axios.get(url);
-    // console.log('this is the response to the api:- ', res, res.data.result);
-    // const abi = JSON.parse(res.data.result);
-    // const iface1 = new ethers.utils.Interface(abi);
-    // console.log('iface1:- ', iface1);
-    // console.log('iface1 function name:-', Object.keys(iface1.functions));
-    // console.log(
-    //   'this is the stateMutability:- ',
-    //   iface1.functions[ifaceFunctionNameKey].stateMutability,
-    // );
-    // const {stateMutability} = iface1.functions[ifaceFunctionNameKey];
-
-    // const ApiKey = 'sdwDCJvTN9o-Rw5T87Rud5BHpt_F8mzN';
-    // const provider = new ethers.providers.AlchemyProvider('maticmum', ApiKey);
-    // const contract = new ethers.Contract(myInput, abi, provider);
-
-    // console.log('contrat abject', contract);
-    // const ans = await contract[Name1](Input[0]);
-
-    // //  console.log("tis is the state mutability",contract.functions,"now                                 ", contract.functions.GetCurrentToken.constant);
-    // //  await ans.wait()
-    // console.log('this is the ans:-', ans);
-    // return ans;
   };
 
   const handleSendHelloClick2 = () => {
@@ -270,12 +254,6 @@ const Index = () => {
 
   return (
     <Container>
-      {/* <Heading>
-        Welcome to <Span>template-snap</Span>
-      </Heading>
-      <Subtitle>
-        Get started by editing <code>src/index.ts</code>
-      </Subtitle> */}
       <CardContainer>
         {state.error && (
           <ErrorMessage>
@@ -325,53 +303,6 @@ const Index = () => {
             disabled={!state.installedSnap}
           />
         )}
-        {/* <Card
-          content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
-            button: (
-              <SendHelloButton
-                onClick={handleSendHelloClick}
-                disabled={!state.installedSnap}
-              />
-            ),
-          }}
-          disabled={!state.installedSnap}
-          fullWidth={
-            state.isFlask &&
-            Boolean(state.installedSnap) &&
-            !shouldDisplayReconnectButton(state.installedSnap)
-          }
-        />
-        <Notice>
-          <p>
-            Please note that the <b>snap.manifest.json</b> and{' '}
-            <b>package.json</b> must be located in the server root directory and
-            the bundle must be hosted at the location specified by the location
-            field.
-          </p>
-        </Notice> */}
-        {/* <CardModified
-          content={{
-            title: 'Smart contract address',
-            description:
-              'Fetch all read and write functions of a smart contract from its address.',
-            button: (
-              <SendHelloButton1
-                onClick={myfunc}
-                disabled={!state.installedSnap}
-              />
-            ),
-          }}
-          disabled={!state.installedSnap}
-          fullWidth={
-            state.isFlask &&
-            Boolean(state.installedSnap) &&
-            !shouldDisplayReconnectButton(state.installedSnap)
-          }
-          onClick={myfunc}
-        /> */}
         <CardWrapper
           fullWidth={
             state.isFlask &&
@@ -422,21 +353,6 @@ const Index = () => {
           functionNames={functionNames}
           myfunc2={myfunc2}
         />
-        {/* <form>
-          <input
-            id="addr1"
-            onChange={(e) => {
-              if (e.target.value !== '') {
-                // getAbi(e.target.value)
-                setMyInput(e.target.value);
-              }
-            }}
-            type="text"
-          />
-          <button type="submit" onClick={myfunc}>
-            Submit
-          </button>
-        </form> */}
       </CardContainer>
     </Container>
   );

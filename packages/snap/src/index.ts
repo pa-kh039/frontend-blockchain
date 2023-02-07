@@ -28,29 +28,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
 }) => {
-  /**
-   *
-   */
-  function logDetails(tx1: {
-    blockNumber: any;
-    blockHash: any;
-    hash: any;
-    from: any;
-    to: any;
-    gasPrice: any;
-    nonce: any;
-    data: any;
-  }) {
-    console.log('transaction blockNumber', tx1.blockNumber);
-    console.log('transaction blockhash', tx1.blockHash);
-    console.log('transaction hash', tx1.hash);
-    console.log('transaction from', tx1.from);
-    console.log('transaction to', tx1.to);
-    console.log('transaction gasPrice', tx1.gasPrice);
-    console.log('transaction nonce', tx1.nonce);
-    console.log('transaction  data', tx1.data);
-  }
-
   switch (request.method) {
     case 'hello':
       return wallet.request({
@@ -112,34 +89,35 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           ans = await contract.callStatic[functionName](...functionInputs);
         }
         console.log('this is the ans:-', ans, Object.values(ans));
-      } else {
-        try {
-          const provider1 = new ethers.providers.Web3Provider(window.ethereum);
-          const signer = provider1.getSigner();
-          const CONTRACT = new ethers.Contract(contractAddress, abi, signer);
-          console.log(
-            'this is a payable function with provider, signer, contract as:- ',
-            provider1,
-            signer,
-            CONTRACT,
-          );
-        } catch (e) {
-          console.log('error1', e);
-        }
-
-        try {
-          if (stateMutability === 'payable') {
-            ans = await CONTRACT.callStatic[functionName](functionInputs, {
-              value: ethers.utils.parseEther(`{ETHER}`),
-            });
-          } else {
-            ans = await CONTRACT.callStatic[functionName](functionInputs);
-          }
-        } catch (e) {
-          console.log('error', e);
-        }
-        logDetails(ans);
       }
+      // else {
+      //   try {
+      //     const provider1 = new ethers.providers.Web3Provider(window.ethereum);
+      //     const signer = provider1.getSigner();
+      //     const CONTRACT = new ethers.Contract(contractAddress, abi, signer);
+      //     console.log(
+      //       'this is a payable function with provider, signer, contract as:- ',
+      //       provider1,
+      //       signer,
+      //       CONTRACT,
+      //     );
+      //   } catch (e) {
+      //     console.log('error1', e);
+      //   }
+
+      //   try {
+      //     if (stateMutability === 'payable') {
+      //       ans = await CONTRACT.callStatic[functionName](functionInputs, {
+      //         value: ethers.utils.parseEther(`{ETHER}`),
+      //       });
+      //     } else {
+      //       ans = await CONTRACT.callStatic[functionName](functionInputs);
+      //     }
+      //   } catch (e) {
+      //     console.log('error', e);
+      //   }
+      //   logDetails(ans);
+      // }
 
       //  await ans.wait()
       console.log('this is the ans:-', ans, Object.values(ans));
@@ -151,6 +129,22 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
             prompt: getMessage(origin),
             description: `This is the response from the function:- ${functionName}\n with arguments passed:- ${functionInputs}.\n `,
             textAreaContent: `Response:- ${ans}`,
+          },
+        ],
+      });
+
+    case 'Transaction':
+      // Trnasaction ouput from the frontend
+      const paramsTransactions: any = request.params;
+      const transactionOutput = paramsTransactions['0']['transactionOutput'];
+      console.log('this is the ans:-', transactionOutput, paramsTransactions);
+      return wallet.request({
+        method: 'snap_confirm',
+        params: [
+          {
+            prompt: getMessage(origin),
+            description: `The transaction output for the before mentioned transaction are:-`,
+            textAreaContent: `Response:- TransactionHash-${transactionOutput['Transactionhash']}, to Address-${transactionOutput['to']}, from address-${transactionOutput['from']}, gasPrice-${transactionOutput['gasPrice']}`,
           },
         ],
       });

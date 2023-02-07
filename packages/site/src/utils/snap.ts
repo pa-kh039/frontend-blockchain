@@ -101,4 +101,21 @@ export const ConnectSmartContract = async (
   });
 };
 
+export const transactionOutput = async (transactionOutput: any) => {
+  await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: [
+      defaultSnapOrigin,
+      {
+        method: 'Transaction',
+        params: [
+          {
+            transactionOutput,
+          },
+        ],
+      },
+    ],
+  });
+};
+
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');
