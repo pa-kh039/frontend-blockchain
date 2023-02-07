@@ -139,7 +139,7 @@ const handleSendHelloClick2=()=>{
       <Description>{description}</Description>
       <Select
         onChange={(e)=>{setFunction(e)}}>
-        <option value='select' selected>select</option>
+        <option value='select' selected disabled>select</option>
         {Object.entries(allfuntion).length>0 ? Object.entries(allfuntion).map(([key,value],index)=>{
        
             return <option value={key}>{key}</option>

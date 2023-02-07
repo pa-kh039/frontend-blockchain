@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import { connectSnap, getThemePreference, getSnap } from '../utils';
-import {ReactComponent as IITBhilai} from "../../../snap/images/iitbhilai.svg";
+import {ReactComponent as IITBhilai} from "../../../snap/images/iitlogo.svg";
 import { HeaderButtons } from './Buttons';
 // import { SnapLogo } from './SnapLogo';
 import { Toggle } from './Toggle';
@@ -64,9 +64,9 @@ export const Header = ({
     <HeaderWrapper>
       <LogoWrapper>
         {/* <img src="../../../snap/images/" /> */}
-        <IITBhilai size={20} color={theme.colors.icon.default} style={{borderRadius:'12%'}} />
+        <IITBhilai size={20} color={theme.colors.icon.default} style={{borderRadius:'12%'}} height={40} width={40} />
         {/* <SnapLogo color={theme.colors.icon.default} size={10} /> */}
-        <Title>IIT Bhilai</Title>
+        <Title>Inter IIT Tech Meet 2023</Title>
       </LogoWrapper>
       <RightContainer>
         <Toggle

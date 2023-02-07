@@ -333,7 +333,7 @@ const Index = () => {
           </button>
           {/* {button} */}
         </CardWrapper>
-        <Dropdown
+        {Object.keys(functionNames).length!==0 &&  <Dropdown
           content={{
             title: 'All functions of the given smart contract',
             description: 'Select functions from the given dropdown',
@@ -353,6 +353,7 @@ const Index = () => {
           functionNames={functionNames}
           myfunc2={myfunc2}
         />
+        }
       </CardContainer>
     </Container>
   );
